@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WESTWORD">
+    <meta name="theme-color" content="#87CEEB">
+    <meta name="description" content="WESTWORD - Seu bichinho virtual">
+
+    <meta name="touch-action" content="manipulation">
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <title>WESTWORD</title>
+    <style>
+        /* Quick overrides for game look */
+        body {
+            background: #87CEEB;
+            overflow: hidden;
+        }
+
+        #app {
+            background: transparent;
+        }
+
+        /* Welcome screen game style */
+        #welcome-screen {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #welcome-screen .screen-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            text-shadow:
+                3px 3px 0 rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 50px;
+        }
+
+        .game-pet-preview {
+            font-size: 6rem;
+            margin-bottom: 40px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .game-start-btn {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow:
+                0 8px 0 #c0392b,
+                0 15px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .game-start-btn:active {
+            transform: translateY(6px);
+            box-shadow:
+                0 2px 0 #c0392b,
+                0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Species selection game style */
+        #species-screen {
+            background: linear-gradient(180deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .species-title {
+            text-align: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .species-grid-game {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .species-card-game {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .species-card-game:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .species-card-game.selected {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            transform: scale(1.05);
+        }
+
+        .species-card-game .pet-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .species-card-game .pet-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .species-card-game .pet-difficulty {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .pet-difficulty.easy {
+            background: #C8E6C9;
+            color: #2E7D32;
+        }
+
+        .pet-difficulty.medium {
+            background: #FFF9C4;
+            color: #F57F17;
+        }
+
+        .pet-difficulty.hard {
+            background: #FFCDD2;
+            color: #C62828;
+        }
+
+        .species-confirm-btn {
+            margin: 15px;
+            padding: 18px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #2E7D32, 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .species-confirm-btn:disabled {
+            background: #ccc;
+            box-shadow: none;
+        }
+
+        /* Naming screen */
+        #naming-screen {
+            background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .naming-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .naming-pet-preview {
+            font-size: 8rem;
+            margin-bottom: 30px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .naming-label {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .naming-input {
+            width: 80%;
+            max-width: 300px;
+            padding: 18px;
+            font-size: 1.3rem;
+            text-align: center;
+            border: none;
+            border-radius: 15px;
+            background: white;
+            color: #333;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1), inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .naming-input::placeholder {
+            color: #aaa;
+        }
+
+        .naming-confirm-btn {
+            padding: 18px 50px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #c0392b, 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Game screen */
+        #game-screen {
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide old elements */
+        .screen-header,
+        .screen-content,
+        .screen-footer,
+        .top-bar,
+        .stats-container,
+        .actions-container,
+        .pet-area {
+            display: none !important;
+        }
+
+        /* Show new game elements */
+        .game-environment {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 55%;
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 50%, #B0E2F4 100%);
+            transition: background 2s ease;
+        }
+
+        .sun {
+            position: absolute;
+            top: 12%;
+            right: 12%;
+            width: 70px;
+            height: 70px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 60px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.9;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud-1 {
+            width: 80px;
+            height: 30px;
+            top: 15%;
+            left: 10%;
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .cloud-1::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud-1::after {
+            width: 35px;
+            height: 35px;
+            top: -15px;
+            left: 40px;
+        }
+
+        .cloud-2 {
+            width: 100px;
+            height: 35px;
+            top: 8%;
+            right: 25%;
+            animation: float-slow 10s ease-in-out infinite reverse;
+        }
+
+        .cloud-2::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 20px;
+        }
+
+        .cloud-2::after {
+            width: 40px;
+            height: 40px;
+            top: -18px;
+            left: 55px;
+        }
+
+        @keyframes float-slow {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(20px);
+            }
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, #7CBA3D 0%, #5B9A2D 30%, #4A8A1D 100%);
+            border-top: 5px solid #3D7A0D;
+        }
+
+        /* Grass blades */
+        .grass-container {
+            position: absolute;
+            top: -15px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        /* Flowers */
+        .flower {
+            position: absolute;
+            font-size: 1.5rem;
+        }
+
+        .flower-1 {
+            bottom: 30%;
+            left: 10%;
+        }
+
+        .flower-2 {
+            bottom: 25%;
+            left: 25%;
+        }
+
+        .flower-3 {
+            bottom: 35%;
+            right: 15%;
+        }
+
+        .flower-4 {
+            bottom: 20%;
+            right: 30%;
+        }
+
+        /* Pet display area in game */
+        .game-pet-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -30%);
+            text-align: center;
+            z-index: 50;
+        }
+
+        .game-pet-sprite {
+            font-size: 7rem;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+            animation: pet-idle 2s ease-in-out infinite;
+        }
+
+        @keyframes pet-idle {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.02);
+            }
+        }
+
+        .game-pet-sprite.sleeping {
+            animation: pet-sleep-anim 3s ease-in-out infinite;
+        }
+
+        @keyframes pet-sleep-anim {
+
+            0%,
+            100% {
+                transform: rotate(-5deg) scale(0.95);
+            }
+
+            50% {
+                transform: rotate(5deg) scale(0.95);
+            }
+        }
+
+        .game-pet-mood {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            font-size: 2rem;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .game-pet-thought {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-pet-thought.visible {
+            opacity: 1;
+        }
+
+        .game-pet-thought::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-bottom-color: white;
+            border-top: 0;
+        }
+
+        /* Status panel at top */
+        .game-status-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 12px 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        .game-pet-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .game-pet-age {
+            font-size: 0.75rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .game-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .game-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-stat-icon {
+            font-size: 1rem;
+        }
+
+        .game-stat-bar {
+            flex: 1;
+            height: 10px;
+            background: #E8E8E8;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .game-stat-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .game-stat-fill.hunger {
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53);
+        }
+
+        .game-stat-fill.thirst {
+            background: linear-gradient(90deg, #4FC3F7, #29B6F6);
+        }
+
+        .game-stat-fill.energy {
+            background: linear-gradient(90deg, #FFD54F, #FFC107);
+        }
+
+        .game-stat-fill.happiness {
+            background: linear-gradient(90deg, #F48FB1, #F06292);
+        }
+
+        .game-stat-fill.hygiene {
+            background: linear-gradient(90deg, #80DEEA, #4DD0E1);
+        }
+
+        .game-stat-fill.health {
+            background: linear-gradient(90deg, #81C784, #66BB6A);
+        }
+
+        /* Settings button */
+        .game-settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        /* Action buttons at bottom */
+        .game-actions-panel {
+            position: absolute;
+            bottom: 15px;
+            left: 10px;
+            right: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .game-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.1s ease;
+        }
+
+        .game-action-btn .btn-icon {
+            font-size: 1.6rem;
+            margin-bottom: 3px;
+        }
+
+        .game-action-btn.feed {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            box-shadow: 0 5px 0 #E65100, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn.water {
+            background: linear-gradient(135deg, #03A9F4, #0288D1);
+            box-shadow: 0 5px 0 #01579B, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn.play {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            box-shadow: 0 5px 0 #1B5E20, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn.sleep {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            box-shadow: 0 5px 0 #4A148C, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn.bath {
+            background: linear-gradient(135deg, #00BCD4, #0097A7);
+            box-shadow: 0 5px 0 #006064, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn.medicine {
+            background: linear-gradient(135deg, #E91E63, #C2185B);
+            box-shadow: 0 5px 0 #880E4F, 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-action-btn:active {
+            transform: translateY(4px);
+        }
+
+        .game-action-btn:active.feed {
+            box-shadow: 0 1px 0 #E65100;
+        }
+
+        .game-action-btn:active.water {
+            box-shadow: 0 1px 0 #01579B;
+        }
+
+        .game-action-btn:active.play {
+            box-shadow: 0 1px 0 #1B5E20;
+        }
+
+        .game-action-btn:active.sleep {
+            box-shadow: 0 1px 0 #4A148C;
+        }
+
+        .game-action-btn:active.bath {
+            box-shadow: 0 1px 0 #006064;
+        }
+
+        .game-action-btn:active.medicine {
+            box-shadow: 0 1px 0 #880E4F;
+        }
+
+        .game-action-btn:disabled {
+            opacity: 0.5;
+            transform: none !important;
+        }
+
+        /* Loading screen game style */
+        #loading-screen {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-pet {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        /* Toast styled for game */
+        .toast {
+            background: white !important;
+            color: #333 !important;
+            border-radius: 25px !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Modal game style */
+        .modal-content {
+            background: white !important;
+            border-radius: 25px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen active">
+            <div class="loading-content">
+                <div class="loading-pet">🐱</div>
+                <div class="logo-container">
+                    <h1 class="logo">WESTWORD</h1>
+                </div>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <p class="loading-text">Carregando...</p>
+            </div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen">
+            <div class="screen-content centered">
+                <h1 class="game-title">WESTWORD</h1>
+                <p class="game-subtitle">Cuide do seu bichinho virtual!</p>
+                <div class="game-pet-preview">🥚</div>
+                <button id="btn-new-game" class="game-start-btn">
+                    Começar
+                </button>
+                <button id="btn-continue" class="game-start-btn"
+                    style="display: none; margin-top: 15px; background: linear-gradient(135deg, #4CAF50, #45a049); box-shadow: 0 8px 0 #2E7D32, 0 15px 30px rgba(0,0,0,0.3);">
+                    Continuar
+                </button>
+            </div>
+        </div>
+
+        <!-- Species Selection Screen -->
+        <div id="species-screen" class="screen">
+            <h2 class="species-title">Escolha seu Bichinho!</h2>
+            <div class="species-grid-game" id="species-grid">
+                <!-- Generated by JS -->
+            </div>
+            <button id="btn-confirm-species" class="species-confirm-btn" disabled>
+                Escolher Este!
+            </button>
+        </div>
+
+        <!-- Naming Screen -->
+        <div id="naming-screen" class="screen">
+            <div class="naming-content">
+                <div class="naming-pet-preview" id="egg-preview">🥚</div>
+                <p class="naming-label">Qual o nome dele?</p>
+                <input type="text" id="pet-name-input" class="naming-input" placeholder="Digite o nome..."
+                    maxlength="12" autocomplete="off">
+                <button id="btn-confirm-name" class="naming-confirm-btn">
+                    Vamos Lá! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Environment -->
+            <div class="game-environment">
+                <div class="sky">
+                    <div class="sun"></div>
+                    <div class="cloud cloud-1"></div>
+                    <div class="cloud cloud-2"></div>
+                </div>
+                <div class="ground">
+                    <div class="flower flower-1">🌸</div>
+                    <div class="flower flower-2">🌼</div>
+                    <div class="flower flower-3">🌷</div>
+                    <div class="flower flower-4">🌻</div>
+                </div>
+            </div>
+
+            <!-- Pet -->
+            <div class="game-pet-area">
+                <div class="game-pet-mood" id="pet-mood">😊</div>
+                <div class="game-pet-sprite" id="pet-sprite">🐱</div>
+                <div class="game-pet-thought" id="pet-bubble"></div>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="game-status-panel">
+                <div class="game-pet-name" id="display-pet-name">Meu Pet</div>
+                <div class="game-pet-age" id="display-pet-age">Bebê • 0 dias</div>
+                <div class="game-stats-grid">
+                    <div class="game-stat">
+                        <span class="game-stat-icon">🍖</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill hunger" id="stat-hunger" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="game-stat">
+                        <span class="game-stat-icon">💧</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill thirst" id="stat-thirst" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="game-stat">
+                        <span class="game-stat-icon">⚡</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill energy" id="stat-energy" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="game-stat">
+                        <span class="game-stat-icon">😊</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill happiness" id="stat-happiness" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="game-stat">
+                        <span class="game-stat-icon">🧼</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill hygiene" id="stat-hygiene" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="game-stat">
+                        <span class="game-stat-icon">❤️</span>
+                        <div class="game-stat-bar">
+                            <div class="game-stat-fill health" id="stat-health" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Button -->
+            <button class="game-settings-btn" id="btn-settings">⚙️</button>
+
+            <!-- Action Buttons -->
+            <div class="game-actions-panel">
+                <button class="game-action-btn feed" id="btn-feed">
+                    <span class="btn-icon">🍖</span>
+                    <span>Comida</span>
+                </button>
+                <button class="game-action-btn water" id="btn-water">
+                    <span class="btn-icon">💧</span>
+                    <span>Água</span>
+                </button>
+                <button class="game-action-btn play" id="btn-play">
+                    <span class="btn-icon">🎮</span>
+                    <span>Brincar</span>
+                </button>
+                <button class="game-action-btn sleep" id="btn-sleep">
+                    <span class="btn-icon">😴</span>
+                    <span>Dormir</span>
+                </button>
+                <button class="game-action-btn bath" id="btn-bath">
+                    <span class="btn-icon">🛁</span>
+                    <span>Banho</span>
+                </button>
+                <button class="game-action-btn medicine" id="btn-medicine">
+                    <span class="btn-icon">💊</span>
+                    <span>Remédio</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <h3>⚙️ Configurações</h3>
+                    <button class="btn-close" id="btn-close-settings">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <span>🔊 Som</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="setting-sound" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>🔔 Notificações</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="setting-notifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>📳 Vibração</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="setting-vibration" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <hr>
+                    <div class="pet-details">
+                        <h4>📊 Sobre seu Pet</h4>
+                        <p id="pet-details-info"></p>
+                        <p id="pet-personality-info"></p>
+                    </div>
+                    <hr>
+                    <button class="btn btn-danger" id="btn-reset-game">
+                        🗑️ Recomeçar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="toast">
+            <span class="toast-icon"></span>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data/species.js"></script>
+    <script src="js/data/items.js"></script>
+    <script src="js/pet/personality.js"></script>
+    <script src="js/pet/needs.js"></script>
+    <script src="js/pet/health.js"></script>
+    <script src="js/pet/evolution.js"></script>
+    <script src="js/pet/pet.js"></script>
+    <script src="js/engine/save.js"></script>
+    <script src="js/engine/time.js"></script>
+    <script src="js/engine/game.js"></script>
+    <script src="js/ui/screens.js"></script>
+    <script src="js/ui/pet-display.js"></script>
+    <script src="js/ui/actions.js"></script>
+    <script src="js/ui/notifications.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
